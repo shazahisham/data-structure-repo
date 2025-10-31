@@ -1,0 +1,66 @@
+#include <iostream>
+using namespace std;
+
+template<typename T>
+class Queue {
+    T* data;
+    size_t cap;
+    size_t frontIndex;
+    size_t rearIndex;
+    size_t count;
+
+    void resize(size_t new_cap) {
+        T* new_data = new T[new_cap];
+        for (size_t i = 0; i < count; ++i)
+            new_data[i] = data[(frontIndex + i) % cap];
+        delete[] data;
+        data = new_data;
+        cap = new_cap;
+        frontIndex = 0;
+        rearIndex = count;
+    }
+
+public:
+    Queue() : data(nullptr), cap(0), frontIndex(0), rearIndex(0), count(0) {}
+    ~Queue() { delete[] data; }
+
+    void push(const T& value) {
+        if (count == cap) resize(cap == 0 ? 1 : cap * 2);
+        data[rearIndex] = value;
+        rearIndex = (rearIndex + 1) % cap;
+        count++;
+    }
+
+    void pop() {
+        if (count == 0) return;
+        frontIndex = (frontIndex + 1) % cap;
+        count--;
+    }
+
+    T& front() { return data[frontIndex]; }
+    const T& front() const { return data[frontIndex]; }
+
+    bool empty() const { return count == 0; }
+    size_t size() const { return count; }
+
+    void clear() { frontIndex = rearIndex = count = 0; }
+};
+
+int main() {
+    Queue<int> q;
+    q.push(10);
+    q.push(20);
+    q.push(30);
+
+    cout << "Front: " << q.front() << endl;
+    q.pop();
+    cout << "Front after pop: " << q.front() << endl;
+
+    cout << "Queue elements: ";
+    while (!q.empty()) {
+        cout << q.front() << " ";
+        q.pop();
+    }
+    cout << endl;
+    return 0;
+}
